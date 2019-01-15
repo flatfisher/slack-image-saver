@@ -5,7 +5,12 @@ slack-media-saver saves media uploaded on Slack to Google Photos.
 - [Slack API](https://api.slack.com)
     - api token
 - [Google Photos API](https://developers.google.com/photos)
+    - authorization_code
 - [Using OAuth 2.0 to Access Google APIs](https://developers.google.com/identity/protocols/OAuth2)
+    - client_id
+    - client_secret
+    - redirect_uri
+    - scope
 - [Google Cloud Scheduler](https://cloud.google.com/scheduler)
 - [Google Cloud Pub/Sub](https://cloud.google.com/pubsub/docs/overview)
 - [Firebase Functions](https://firebase.google.com/docs/functions/pubsub-events)
@@ -28,6 +33,9 @@ $ npm run lint --prefix functions/
 ```
 $ firebase functions:config:set slack.token=""
 $ firebase functions:config:set slack.channel=""
+$ firebase functions:config:set google.refresh_token=""
+$ firebase functions:config:set google.client_id=""
+$ firebase functions:config:set google.client_secret=""
 $ firebase deploy --only functions
 $ firebase functions:config:get //Check current environment variables
 ```
