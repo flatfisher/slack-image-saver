@@ -56,10 +56,16 @@ $ npm run deploy
 
 ## Note
 
+### Creating and Configuring Cron Jobs
+
+```
+$ gcloud beta scheduler jobs create pubsub Saver --schedule "0 */3 * * *" --time-zone Asia/Tokyo --description "Upload photo to GooglePhotos" --topic slack-to-googlephotos --message-body "{"count":1}"
+```
+
 ### Publish a pub/sub's topic
 
 ```
-$ gcloud pubsub topics publish slack-to-googlephotos --message '{"count":1}'
+$ gcloud pubsub topics publish slack-to-googlephotos --message "{"count":1}"
 ```
 
 ### Delete Environment
