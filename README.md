@@ -27,6 +27,7 @@ $ npm run lint --prefix functions/
 
 ```
 $ firebase functions:config:set slack.token=""
+$ firebase functions:config:set slack.channel=""
 $ firebase deploy --only functions
 $ firebase functions:config:get //Check current environment variables
 ```
