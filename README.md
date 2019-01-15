@@ -33,3 +33,11 @@ $ npm run build --prefix functions/
 ```
 $ npm run deploy
 ```
+
+## Note
+
+### Publish a pub/sub's topic
+
+```
+$ gcloud pubsub topics publish slack-to-googlephotos --message '{"count":1}'
+```
