@@ -32,9 +32,9 @@ async function getFile(response: any): Promise<File> {
     return file
 }
 
-async function getToken(response: any): Promise<Token> {
+async function getAccessToken(response: any): Promise<String> {
     const token: Token = <Token>JSON.parse(response)
-    return token
+    return token.access_token
 }
 
 exports.saveSlackPhotos = functions.pubsub.topic('slack-to-googlephotos').onPublish(async (_) => {
@@ -47,8 +47,8 @@ exports.saveSlackPhotos = functions.pubsub.topic('slack-to-googlephotos').onPubl
         url: `https://slack.com/api/files.list?token=${SLACK_TOKEN}&channel=${SLACK_CHANNEL}&count=5&pretty=1`,
         method: "GET",
     }
-    const slackResponse = await doRequest(getSlackOption).catch(err => console.error(err))
-    const file: File = <File>await getFile(slackResponse).catch(err => console.error(err))
+    const slackResponse = await doRequest(getSlackOption).catch(err => console.error(`slackResponse: ${err}`))
+    const file: File = <File>await getFile(slackResponse).catch(err => console.error(`file: ${err}`))
 
     // Get a photo
     const getPhotoOption = {
@@ -58,7 +58,7 @@ exports.saveSlackPhotos = functions.pubsub.topic('slack-to-googlephotos').onPubl
         },
         encoding: null
     }
-    const photo = await doRequest(getPhotoOption).catch(err => console.error(err)) //Buffer
+    const photo = await doRequest(getPhotoOption).catch(err => console.error(`photo: ${err}`)) //Buffer
 
     // Get an Access Token to use Google Photos API
     const CLIENT_ID = `${functions.config().google.client_id}`
@@ -75,6 +75,44 @@ exports.saveSlackPhotos = functions.pubsub.topic('slack-to-googlephotos').onPubl
         }
     }
 
-    const tokenResponse = await doRequest(getAcessToken).catch(err => console.error(err))
-    const token = await getToken(tokenResponse).catch(err => console.error(err))
+    const tokenResponse = await doRequest(getAcessToken).catch(err => console.error(`tokenResponse: ${err}`))
+    const token:string = <string> await getAccessToken(tokenResponse).catch(err => console.error(`token: ${err}`))
+
+    // Upload a photo to Google Photos
+    const uploadPhoto = {
+        url: 'https://photoslibrary.googleapis.com/v1/uploads',
+        method: 'POST',
+        headers: {
+            'content-type': 'application/octet-stream',
+            'Authorization': `Bearer ${token}`,
+            'X-Goog-Upload-File-Name': `${file.id}`,
+            'X-Goog-Upload-Protocol': 'raw',
+        },
+        body: photo,
+    }
+
+    // Response body is UploadToken
+    const uploadToken = await doRequest(uploadPhoto).catch(err => console.error(`uploadToken: ${err}`))
+    const ALBUM_ID =  `${functions.config().photos.album_id}`
+    const uploadToAlbum = {
+        method: "POST",
+        url: 'https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate',
+        headers: {
+            'content-type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        json: {
+            "albumId": `${ALBUM_ID}`,
+            "newMediaItems": [
+                {
+                    "description": "Upload from API",
+                    "simpleMediaItem": {
+                        "uploadToken": uploadToken
+                    }
+                }
+            ]
+        }
+    }
+
+    await doRequest(uploadToAlbum).catch(err => console.error(`uploadToAlbum: ${err}`))
 })
