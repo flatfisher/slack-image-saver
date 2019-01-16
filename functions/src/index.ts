@@ -1,9 +1,5 @@
 import * as functions from 'firebase-functions'
 import * as request from 'request'
-import * as admin from 'firebase-admin';
-
-admin.initializeApp(functions.config().firebase);
-let db = admin.firestore();
 
 interface File {
     id: string,
@@ -120,8 +116,7 @@ exports.saveSlackPhotos = functions.pubsub.topic('slack-to-googlephotos').onPubl
         }
     }
 
-    await doRequest(uploadToAlbum).catch(err => console.error(`uploadToAlbum: ${err}`)).then(_ => {
-        //TODO: Save photo id to Firestore
-    })
+    await doRequest(uploadToAlbum).catch(err => console.error(`uploadToAlbum: ${err}`))
+    //TODO: Save photo id to Firestore
 
 })
