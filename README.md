@@ -1,5 +1,5 @@
 # slack-image-saver
-slack-media-saver saves media uploaded on Slack to Google Photos.
+slack-image-saver saves media uploaded on Slack to Google Photos.
 
 ## Prerequirement
 - [Slack API](https://api.slack.com)
